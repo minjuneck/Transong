@@ -2,18 +2,18 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>AI 한국어 개사 생성기 (MVP Demo)</title>
+<title>AI 개사 & 보이스 변환 MVP Demo</title>
 
 <style>
     body {
         font-family: "Pretendard", sans-serif;
-        background: linear-gradient(135deg, #b9dcff, #e3f3ff);
+        background: linear-gradient(135deg, #b9dcff, #d8ecff);
         padding: 40px;
         text-align: center;
     }
 
     #container {
-        width: 650px;
+        width: 750px;
         margin: auto;
         background: white;
         padding: 30px;
@@ -38,10 +38,8 @@
         transition: 0.2s;
     }
 
-    textarea:focus {
-        border-color: #4d9bff;
-        outline: none;
-        box-shadow: 0 0 8px rgba(77, 155, 255, 0.4);
+    input[type="file"] {
+        margin-top: 12px;
     }
 
     select {
@@ -65,37 +63,42 @@
         transition: 0.2s;
     }
 
-    button:hover {
-        background: #005ce6;
-    }
+    button:hover { background: #005ce6; }
 
-    #resultBox {
+    #resultBox, #audioBox {
         margin-top: 25px;
         background: #f2f7ff;
         padding: 20px;
         border-radius: 14px;
         text-align: left;
-        min-height: 140px;
         border: 1px solid #d0e3ff;
     }
 
-    #label {
-        font-weight: bold;
-        font-size: 18px;
-        margin-bottom: 10px;
-    }
+    #label { font-weight: bold; font-size: 18px; margin-bottom: 10px; }
 
+    #downloadBtn {
+        margin-top: 10px;
+        display: none;
+        background: #28a745;
+        padding: 12px 18px;
+        border-radius: 12px;
+        color: white;
+        font-size: 15px;
+        cursor: pointer;
+    }
 </style>
 </head>
 
 <body>
 
 <div id="container">
-    <h2>🎵 AI 한국어 개사 생성기 (데모 MVP)</h2>
-    <p>영어 가사를 입력하면, AI가 자연스럽게 개사한 예시를 보여줍니다.</p>
+    <h2>🎵 AI 한국어 개사 & 가상 보이스 변환 MVP (데모)</h2>
+    <p>영어 가사 → 한국어 개사 / 음원 업로드 → 가상 보이스 변환 과정을 체험할 수 있는 데모입니다.</p>
 
-    <textarea id="inputLyrics" placeholder="여기에 영어 가사를 붙여넣으세요"></textarea><br><br>
+    <!-- ✦ 가사 입력 -->
+    <textarea id="inputLyrics" placeholder="영어 가사를 입력하세요"></textarea><br><br>
 
+    <!-- ✦ 옵션 선택 -->
     <div>
         감정:
         <select id="mood">
@@ -113,17 +116,36 @@
         </select>
     </div>
 
-    <button onclick="showDemo()">개사 생성하기</button>
+    <button onclick="generateLyrics()">개사 생성하기</button>
 
+    <!-- ✦ 개사 결과 -->
     <div id="resultBox">
         <div id="label">📝 개사 결과</div>
-        <p id="outputText" style="white-space: pre-line;">개사가 여기에 표시됩니다.</p>
+        <p id="outputLyrics" style="white-space: pre-line;">개사가 여기에 표시됩니다.</p>
+    </div>
+
+
+    <!-- ✦ 음원 업로드 -->
+    <h3 style="margin-top:40px;">🎤 보이스 변환 (데모)</h3>
+    <p>가상의 보이스로 변환된 음원을 보여주는 데모입니다.</p>
+
+    <input type="file" id="audioUpload" accept="audio/*"><br>
+    <button onclick="fakeConvertAudio()">보이스 변환하기</button>
+
+    <!-- ✦ 변환 음원 -->
+    <div id="audioBox">
+        <div id="label">🔊 변환된 음원 결과</div>
+        <p id="audioStatus">업로드된 파일이 없습니다.</p>
+        <audio id="audioPlayer" controls style="width:100%; display:none;">
+            <source id="audioSource" src="">
+        </audio>
+        <button id="downloadBtn" onclick="downloadAudio()">변환 음원 다운로드</button>
     </div>
 
 </div>
 
 <script>
-function showDemo() {
+function generateLyrics() {
     const mood = document.getElementById("mood").value;
     const style = document.getElementById("style").value;
 
@@ -139,9 +161,39 @@ function showDemo() {
 내 맘의 리듬이 너를 향해 흘러가
 이 멜로디처럼 널 부르고 싶어
 다시 한 번, 너를 닮은 이 노래로
-`;
+    `;
 
-    document.getElementById("outputText").innerText = demoLyrics;
+    document.getElementById("outputLyrics").innerText = demoLyrics;
+}
+
+function fakeConvertAudio() {
+    const file = document.getElementById("audioUpload").files[0];
+    if (!file) {
+        alert("음원 파일을 업로드해주세요!");
+        return;
+    }
+
+    document.getElementById("audioStatus").innerText = "⏳ 보이스 변환 중... (데모)";
+    
+    // 1.5초 후에 가짜 변환 완료
+    setTimeout(() => {
+        document.getElementById("audioStatus").innerText = "✔ 변환 완료! (데모 음원입니다)";
+        document.getElementById("audioPlayer").style.display = "block";
+
+        // 가짜 음원 파일 제공
+        document.getElementById("audioSource").src =
+            "https://cdn.pixabay.com/download/audio/2022/03/15/audio_10d4850890.mp3?filename=demo-music-110041.mp3";
+
+        document.getElementById("audioPlayer").load();
+        document.getElementById("downloadBtn").style.display = "inline-block";
+    }, 1500);
+}
+
+function downloadAudio() {
+    const link = document.createElement("a");
+    link.href = document.getElementById("audioSource").src;
+    link.download = "AI_Converted_Demo.mp3";
+    link.click();
 }
 </script>
 
