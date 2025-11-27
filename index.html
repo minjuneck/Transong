@@ -2,12 +2,12 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>AI 개사 & 보이스 변환 MVP Demo</title>
+<title>TranSong 데모 MVP</title>
 
 <style>
     body {
         font-family: "Pretendard", sans-serif;
-        background: linear-gradient(135deg, #b9dcff, #d8ecff);
+        background: linear-gradient(135deg, #cfe3ff, #e8f2ff);
         padding: 40px;
         text-align: center;
     }
@@ -23,7 +23,7 @@
     }
 
     @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
+        from { opacity: 0; transform: translateY(15px); }
         to   { opacity: 1; transform: translateY(0); }
     }
 
@@ -33,22 +33,17 @@
         padding: 12px;
         border-radius: 12px;
         border: 1px solid #ccc;
-        font-size: 15px;
         resize: none;
-        transition: 0.2s;
+        font-size: 15px;
     }
 
-    input[type="file"] {
-        margin-top: 12px;
-    }
-
-    select {
+    select, input[type="file"] {
         padding: 10px;
-        width: 180px;
+        width: 220px;
         border-radius: 10px;
-        margin: 5px;
+        margin: 8px;
         border: 1px solid #aaa;
-        font-size: 14px;
+        font-size: 15px;
     }
 
     button {
@@ -59,15 +54,14 @@
         border-radius: 14px;
         cursor: pointer;
         margin-top: 20px;
-        font-size: 16px;
-        transition: 0.2s;
+        font-size: 17px;
     }
 
     button:hover { background: #005ce6; }
 
     #resultBox, #audioBox {
         margin-top: 25px;
-        background: #f2f7ff;
+        background: #f1f6ff;
         padding: 20px;
         border-radius: 14px;
         text-align: left;
@@ -92,107 +86,89 @@
 <body>
 
 <div id="container">
-    <h2>🎵 AI 한국어 개사 & 가상 보이스 변환 MVP (데모)</h2>
-    <p>영어 가사 → 한국어 개사 / 음원 업로드 → 가상 보이스 변환 과정을 체험할 수 있는 데모입니다.</p>
+    <h2>🎵 Transong MVP (데모)</h2>
+    <p>음원 파일을 넣으면 → 개사 생성 → 개사 기반 가상 보컬 음원을 제공하는 데모입니다.</p>
 
-    <!-- ✦ 가사 입력 -->
-    <textarea id="inputLyrics" placeholder="영어 가사를 입력하세요"></textarea><br><br>
+    <!-- ✦ 음원 업로드 -->
+    <h3>1️⃣ 음악 파일 업로드</h3>
+    <p>업로드된 파일을 기반으로 가사를 분석하는 것처럼 보입니다 (데모 처리)</p>
 
-    <!-- ✦ 옵션 선택 -->
-    <div>
-        감정:
-        <select id="mood">
-            <option value="감성">감성</option>
-            <option value="밝음">밝음</option>
-            <option value="슬픔">슬픔</option>
-            <option value="원곡 느낌">원곡 느낌</option>
-        </select>
-
-        스타일:
-        <select id="style">
-            <option value="K-pop 스타일">K-pop 스타일</option>
-            <option value="자연스러운 말투">자연스러운 말투</option>
-            <option value="시적인 느낌">시적인 느낌</option>
-        </select>
-    </div>
-
-    <button onclick="generateLyrics()">개사 생성하기</button>
+    <input type="file" id="audioUpload" accept="audio/*"><br>
+    <button onclick="fakeAnalyze()">가사 분석 & 개사 시작</button>
 
     <!-- ✦ 개사 결과 -->
     <div id="resultBox">
-        <div id="label">📝 개사 결과</div>
-        <p id="outputLyrics" style="white-space: pre-line;">개사가 여기에 표시됩니다.</p>
+        <div id="label">📝 생성된 한국어 개사</div>
+        <p id="outputLyrics" style="white-space: pre-line;">업로드 후 개사가 여기에 표시됩니다.</p>
     </div>
 
+    <!-- ✦ 가상 보컬 노래 -->
+    <h3>2️⃣ 개사 기반 가상 보컬 음원 생성</h3>
+    
+    <button onclick="fakeSing()">가상 보컬로 노래 생성</button>
 
-    <!-- ✦ 음원 업로드 -->
-    <h3 style="margin-top:40px;">🎤 보이스 변환 (데모)</h3>
-    <p>가상의 보이스로 변환된 음원을 보여주는 데모입니다.</p>
-
-    <input type="file" id="audioUpload" accept="audio/*"><br>
-    <button onclick="fakeConvertAudio()">보이스 변환하기</button>
-
-    <!-- ✦ 변환 음원 -->
     <div id="audioBox">
-        <div id="label">🔊 변환된 음원 결과</div>
-        <p id="audioStatus">업로드된 파일이 없습니다.</p>
+        <div id="label">🎤 생성된 가상 보컬 음원</div>
+        <p id="audioStatus">아직 생성되지 않았습니다.</p>
+
         <audio id="audioPlayer" controls style="width:100%; display:none;">
             <source id="audioSource" src="">
         </audio>
-        <button id="downloadBtn" onclick="downloadAudio()">변환 음원 다운로드</button>
+
+        <button id="downloadBtn" onclick="downloadAudio()">가상 보컬 음원 다운로드</button>
     </div>
 
 </div>
 
 <script>
-function generateLyrics() {
-    const mood = document.getElementById("mood").value;
-    const style = document.getElementById("style").value;
-
-    const demoLyrics = `
-(${mood} · ${style})
------------------------------------
-그대가 내게 다가오던 그 순간처럼
-밤하늘 속 별빛이 되어 스며오네
-멀어질 것 같던 이 마음의 떨림도
-지금 여기에서 너로 다시 노래돼
-
-함께 했던 작은 기억들 사이로
-내 맘의 리듬이 너를 향해 흘러가
-이 멜로디처럼 널 부르고 싶어
-다시 한 번, 너를 닮은 이 노래로
-    `;
-
-    document.getElementById("outputLyrics").innerText = demoLyrics;
-}
-
-function fakeConvertAudio() {
+function fakeAnalyze() {
     const file = document.getElementById("audioUpload").files[0];
     if (!file) {
         alert("음원 파일을 업로드해주세요!");
         return;
     }
 
-    document.getElementById("audioStatus").innerText = "⏳ 보이스 변환 중... (데모)";
+    document.getElementById("outputLyrics").innerText = "⏳ 업로드된 음원에서 가사 분석 중... (데모)";
     
-    // 1.5초 후에 가짜 변환 완료
+    // 약간의 딜레이 후 개사 결과 표시
     setTimeout(() => {
-        document.getElementById("audioStatus").innerText = "✔ 변환 완료! (데모 음원입니다)";
+        const demoLyrics = `
+🎶 (데모 개사 결과)
+
+저 멀리 들리던 네 목소리 따라
+흩어져 있던 내 마음이 다시 번져와
+우리가 지나온 모든 순간 속에서
+노래처럼 너를 또 불러본다
+
+밤하늘 아래 피어나는 그 멜로디
+내 마음 깊은 곳을 울려 퍼져와
+이제는 너에게 닿을 수 있도록
+내 목소리에 너를 담아 노래해
+        `;
+        document.getElementById("outputLyrics").innerText = demoLyrics;
+    }, 1500);
+}
+
+function fakeSing() {
+    document.getElementById("audioStatus").innerText = "🎙️ 가상 보컬이 노래 생성 중... (데모)";
+    
+    setTimeout(() => {
+        document.getElementById("audioStatus").innerText = "✔ 가상 보컬 노래 생성 완료!";
         document.getElementById("audioPlayer").style.display = "block";
 
-        // 가짜 음원 파일 제공
+        // 가짜 음원 (데모 음악)
         document.getElementById("audioSource").src =
-            "https://cdn.pixabay.com/download/audio/2022/03/15/audio_10d4850890.mp3?filename=demo-music-110041.mp3";
+            "https://cdn.pixabay.com/download/audio/2023/09/05/audio_d783adbda7.mp3";
 
         document.getElementById("audioPlayer").load();
         document.getElementById("downloadBtn").style.display = "inline-block";
-    }, 1500);
+    }, 2000);
 }
 
 function downloadAudio() {
     const link = document.createElement("a");
     link.href = document.getElementById("audioSource").src;
-    link.download = "AI_Converted_Demo.mp3";
+    link.download = "AI_Singing_Demo.mp3";
     link.click();
 }
 </script>
