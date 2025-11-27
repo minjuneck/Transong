@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>AI 한국어 개사 생성기 (MVP Demo)</title>
+
+<style>
+    body {
+        font-family: "Pretendard", sans-serif;
+        background: linear-gradient(135deg, #b9dcff, #e3f3ff);
+        padding: 40px;
+        text-align: center;
+    }
+
+    #container {
+        width: 650px;
+        margin: auto;
+        background: white;
+        padding: 30px;
+        border-radius: 18px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        animation: fadeIn 0.7s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    textarea {
+        width: 90%;
+        height: 150px;
+        padding: 12px;
+        border-radius: 12px;
+        border: 1px solid #ccc;
+        font-size: 15px;
+        resize: none;
+        transition: 0.2s;
+    }
+
+    textarea:focus {
+        border-color: #4d9bff;
+        outline: none;
+        box-shadow: 0 0 8px rgba(77, 155, 255, 0.4);
+    }
+
+    select {
+        padding: 10px;
+        width: 180px;
+        border-radius: 10px;
+        margin: 5px;
+        border: 1px solid #aaa;
+        font-size: 14px;
+    }
+
+    button {
+        background: #0a74ff;
+        color: white;
+        padding: 14px 22px;
+        border: none;
+        border-radius: 14px;
+        cursor: pointer;
+        margin-top: 20px;
+        font-size: 16px;
+        transition: 0.2s;
+    }
+
+    button:hover {
+        background: #005ce6;
+    }
+
+    #resultBox {
+        margin-top: 25px;
+        background: #f2f7ff;
+        padding: 20px;
+        border-radius: 14px;
+        text-align: left;
+        min-height: 140px;
+        border: 1px solid #d0e3ff;
+    }
+
+    #label {
+        font-weight: bold;
+        font-size: 18px;
+        margin-bottom: 10px;
+    }
+
+</style>
+</head>
+
+<body>
+
+<div id="container">
+    <h2>🎵 AI 한국어 개사 생성기 (데모 MVP)</h2>
+    <p>영어 가사를 입력하면, AI가 자연스럽게 개사한 예시를 보여줍니다.</p>
+
+    <textarea id="inputLyrics" placeholder="여기에 영어 가사를 붙여넣으세요"></textarea><br><br>
+
+    <div>
+        감정:
+        <select id="mood">
+            <option value="감성">감성</option>
+            <option value="밝음">밝음</option>
+            <option value="슬픔">슬픔</option>
+            <option value="원곡 느낌">원곡 느낌</option>
+        </select>
+
+        스타일:
+        <select id="style">
+            <option value="K-pop 스타일">K-pop 스타일</option>
+            <option value="자연스러운 말투">자연스러운 말투</option>
+            <option value="시적인 느낌">시적인 느낌</option>
+        </select>
+    </div>
+
+    <button onclick="showDemo()">개사 생성하기</button>
+
+    <div id="resultBox">
+        <div id="label">📝 개사 결과</div>
+        <p id="outputText" style="white-space: pre-line;">개사가 여기에 표시됩니다.</p>
+    </div>
+
+</div>
+
+<script>
+function showDemo() {
+    const mood = document.getElementById("mood").value;
+    const style = document.getElementById("style").value;
+
+    const demoLyrics = `
+(${mood} · ${style})
+-----------------------------------
+그대가 내게 다가오던 그 순간처럼
+밤하늘 속 별빛이 되어 스며오네
+멀어질 것 같던 이 마음의 떨림도
+지금 여기에서 너로 다시 노래돼
+
+함께 했던 작은 기억들 사이로
+내 맘의 리듬이 너를 향해 흘러가
+이 멜로디처럼 널 부르고 싶어
+다시 한 번, 너를 닮은 이 노래로
+`;
+
+    document.getElementById("outputText").innerText = demoLyrics;
+}
+</script>
+
+</body>
+</html>
